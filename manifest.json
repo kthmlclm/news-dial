@@ -39,6 +39,10 @@
     "options_ui": {
         "page": "options/options.html"
     },
+    "page_action": {
+        "default_icon": "icon.svg",
+        "default_title": "Use current view as thumbnail in Bookmark Dial"
+    },
     "permissions": [
         "<all_urls>",
         "bookmarks",

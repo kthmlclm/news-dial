@@ -281,6 +281,27 @@ function initThumbnailRegistry() {
 }
 initThumbnailRegistry();
 
+function maybeShowPageAction() {
+    return chainPromises([
+        ()     => browser.tabs.query({ active: true, currentWindow: true }),
+        (tabs) => tabs[0],
+        (tab)  => __maybeShowPageAction(tab),
+    ]);
+}
+function __maybeShowPageAction(tab) {
+    if (tab.status !== "complete") {
+        browser.pageAction.hide(tab.id);
+        return;
+    }
+    __isURLFromBookmarkFolder(tab.url).then(isIt => isIt ? browser.pageAction.show(tab.id) : browser.pageAction.hide(tab.id));
+}
+browser.bookmarks.onCreated.addListener(maybeShowPageAction);
+browser.bookmarks.onChanged.addListener(maybeShowPageAction);
+browser.bookmarks.onMoved.addListener(maybeShowPageAction);
+browser.tabs.onActivated.addListener(maybeShowPageAction);
+browser.tabs.onUpdated.addListener(maybeShowPageAction);
+browser.pageAction.onClicked.addListener(tab => createThumbnail(tab.url));
+
 function handleInstalled(details) {
     if (details.reason === "update" && details.previousVersion === "1.1.2") {
         browser.tabs.create({
